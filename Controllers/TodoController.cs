@@ -1,4 +1,5 @@
 ﻿using backend_test.Models;
+using backend_test.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend_test.Controllers;
@@ -7,44 +8,40 @@ namespace backend_test.Controllers;
 [Route("[controller]")]
 public class TodoController : ControllerBase
 {
-    private static List<Todo> todoList = new()
+    private readonly TodoService _service;
+
+    public TodoController(TodoService service)
     {
-    };
-    
+        _service = service;
+    }
+
     [HttpGet]
-    public async Task<ActionResult<List<Todo>>> Get()
+    public ActionResult<List<Todo>> Get()
     {
-        return Ok(todoList);
+        return Ok(_service.GetAll());
     }
 
     [HttpPost]
-    public async Task<ActionResult<List<Todo>>> AddTodo(CreateTodoModel model)
+    public ActionResult<List<Todo>> AddTodo(CreateTodoModel model)
     {
-        var todo = new Todo()
-        {
-            Id = Guid.NewGuid().ToString(),
-            Description = model.Name
-        };
-        todoList.Add(todo);
-        return Ok(todoList);
+        return Ok(_service.CreateTodo(model));
     }
 
     [HttpDelete]
-    public async Task<ActionResult<List<Todo>>> Delete()
+    public ActionResult<List<Todo>> Delete()
     {
-        todoList.Clear();
-        return Ok(todoList);
+        _service.DeleteAll();
+        return Ok();
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<List<Todo>>> DeleteById(string id)
+    public ActionResult<List<Todo>> DeleteById(string id)
     {
-        var todoId = todoList.Find(t => t.Id == id);
-        if (todoId == null)
+        if (_service.DeleteById(id))
         {
-            return BadRequest("El id no existe");
+           return Ok();
         }
-        todoList.Remove(todoId);
-        return Ok(todoList);
+
+        return NotFound("No se encontro el id");
     }
  }
