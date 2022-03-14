@@ -10,7 +10,7 @@ public class TodoController : ControllerBase
     {
         new Todo
         {
-            Id = 1,
+            Id = 0,
             Description = "Prueba"
         }
     };
@@ -27,5 +27,23 @@ public class TodoController : ControllerBase
         todoList.Add(todo);
         return Ok(todoList);
     }
-    
+
+    [HttpDelete]
+    public async Task<ActionResult<List<Todo>>> Delete()
+    {
+        todoList.Clear();
+        return Ok(todoList);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<List<Todo>>> DeleteById(int id)
+    {
+        var todoId = todoList.Find(t => t.Id == id);
+        if (todoId == null)
+        {
+            return BadRequest("El id no existe");
+        }
+        todoList.Remove(todoId);
+        return Ok(todoList);
+    }
  }
