@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using backend_test.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace backend_test.Controllers;
 
@@ -6,13 +7,8 @@ namespace backend_test.Controllers;
 [Route("[controller]")]
 public class TodoController : ControllerBase
 {
-    private static List<Todo> todoList = new List<Todo>
+    private static List<Todo> todoList = new()
     {
-        new Todo
-        {
-            Id = 0,
-            Description = "Prueba"
-        }
     };
     
     [HttpGet]
@@ -22,8 +18,13 @@ public class TodoController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<List<Todo>>> AddTodo(Todo todo)
+    public async Task<ActionResult<List<Todo>>> AddTodo(CreateTodoModel model)
     {
+        var todo = new Todo()
+        {
+            Id = Guid.NewGuid().ToString(),
+            Description = model.Name
+        };
         todoList.Add(todo);
         return Ok(todoList);
     }
@@ -36,7 +37,7 @@ public class TodoController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<List<Todo>>> DeleteById(int id)
+    public async Task<ActionResult<List<Todo>>> DeleteById(string id)
     {
         var todoId = todoList.Find(t => t.Id == id);
         if (todoId == null)
